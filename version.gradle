@@ -16,7 +16,7 @@
 
 /** APP version. */
 project.ext.VERSION_CODE = 1
-project.ext.VERSION_NAME = '1.0.0'
+project.ext.VERSION_NAME = '1.0'
 
 /** Android SDK version */
 project.ext.MIN_SDK = 21

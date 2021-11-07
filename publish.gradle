@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
+publishing {
 
-apply from: "../version.gradle"
-apply from: "../publish.gradle"
-
-android {
-
-    compileSdk project.COMPILE_SDK
-
-    defaultConfig {
-        minSdk project.MIN_SDK
-        targetSdk project.TARGET_SDK
-        versionCode project.VERSION_CODE
-        versionName project.VERSION_NAME
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/ilvm/log-cat"
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GPR_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GPR_TOKEN")
+            }
+        }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+    publications {
+        gpr(MavenPublication) {
+            groupId = 'xds.lib.util'
+            artifactId = 'logcat'
+            version = project.VERSION_NAME
+            artifact("$buildDir/outputs/aar/lib-release.aar")
+        }
     }
 }
-
-dependencies {}
