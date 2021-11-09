@@ -15,6 +15,7 @@
  */
 package xds.lib.util;
 
+import android.os.Build;
 import android.util.Log;
 
 /**
@@ -22,7 +23,17 @@ import android.util.Log;
  */
 public final class Logcat {
 
-    private static final boolean DEBUG = BuildConfig.DEBUG;
+    private static volatile boolean debuggable = false;
+
+    private static final boolean DEBUG = debuggable || !Build.TYPE.equals("user") ||
+            Build.DEVICE.startsWith("generic");
+
+    /**
+     * Override default debuggable policy.
+     */
+    public static void setDebuggable(Boolean isDebuggable) {
+        debuggable = isDebuggable;
+    }
 
     /**
      * Send a {@link Log#VERBOSE} log message.
