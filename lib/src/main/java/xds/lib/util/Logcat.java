@@ -16,6 +16,7 @@
 package xds.lib.util;
 
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -23,15 +24,15 @@ import android.util.Log;
  */
 public final class Logcat {
 
-    private static volatile boolean debuggable = false;
+    private static volatile boolean debuggable =
+            !Build.TYPE.equals("user") || Build.DEVICE.startsWith("generic");
 
-    private static final boolean DEBUG = debuggable || !Build.TYPE.equals("user") ||
-            Build.DEVICE.startsWith("generic");
+    private Logcat() {}
 
     /**
      * Override default debuggable policy.
      */
-    public static void setDebuggable(Boolean isDebuggable) {
+    public static void setDebuggable(boolean isDebuggable) {
         debuggable = isDebuggable;
     }
 
@@ -209,10 +210,7 @@ public final class Logcat {
      * @param msg      The message you would like logged.
      */
     private static void print(int priority, String tag, String msg) {
-        if (!DEBUG && !Log.isLoggable(tag, priority)) {
-            return;
-        }
-        Log.println(priority, tag, msg);
+        print(priority, tag, null, msg);
     }
 
     /**
@@ -225,10 +223,7 @@ public final class Logcat {
      * @param args     Arguments referenced by the format specifiers in the format string
      */
     private static void print(int priority, String tag, String format, Object... args) {
-        if (!DEBUG && !Log.isLoggable(tag, priority)) {
-            return;
-        }
-        Log.println(priority, tag, String.format(format, args));
+        print(priority, tag, null, format, args);
     }
 
     /**
@@ -241,10 +236,15 @@ public final class Logcat {
      * @param msg      The message you would like logged.
      */
     private static void print(int priority, String tag, Throwable tr, String msg) {
-        if (!DEBUG && !Log.isLoggable(tag, priority)) {
+        if (!debuggable && !Log.isLoggable(tag, priority)) {
             return;
         }
-        Log.println(priority, tag, msg + "\n" + parseStackTrace(tr));
+        final String stackTrace = Log.getStackTraceString(tr);
+        if (TextUtils.isEmpty(stackTrace)) {
+            Log.println(priority, tag, msg);
+        } else {
+            Log.println(priority, tag, msg + '\n' + stackTrace);
+        }
     }
 
     /**
@@ -258,26 +258,14 @@ public final class Logcat {
      * @param args     Arguments referenced by the format specifiers in the format string
      */
     private static void print(int priority, String tag, Throwable tr, String format, Object... args) {
-        if (!DEBUG && !Log.isLoggable(tag, priority)) {
+        if (!debuggable && !Log.isLoggable(tag, priority)) {
             return;
         }
-        Log.println(priority, tag, String.format(format, args) + "\n" + parseStackTrace(tr));
-    }
-
-    /**
-     * Parse stack trace of the exception for good look in log output.
-     *
-     * @param tr An exception
-     * @return String prepared for log print, each trace separated by new line.
-     */
-    private static String parseStackTrace(Throwable tr) {
-        if (tr == null) {
-            return "";
+        final String stackTrace = Log.getStackTraceString(tr);
+        if (TextUtils.isEmpty(stackTrace)) {
+            Log.println(priority, tag, String.format(format, args));
+        } else {
+            Log.println(priority, tag, String.format(format, args) + '\n' + stackTrace);
         }
-        StringBuilder sb = new StringBuilder(tr.toString()).append("\n");
-        for (StackTraceElement element : tr.getStackTrace()) {
-            sb.append(element.toString()).append("\n");
-        }
-        return sb.toString();
     }
 }

@@ -15,10 +15,10 @@
  */
 
 /** APP version. */
-project.ext.VERSION_CODE = 3
-project.ext.VERSION_NAME = '1.2.0'
+project.ext.VERSION_CODE = 4
+project.ext.VERSION_NAME = '1.2.1'
 
 /** Android SDK version */
 project.ext.MIN_SDK = 21
-project.ext.COMPILE_SDK = 31
+project.ext.COMPILE_SDK = 33
 project.ext.TARGET_SDK = project.ext.COMPILE_SDK
